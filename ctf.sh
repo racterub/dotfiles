@@ -67,7 +67,7 @@ sudo pip3 install --upgrade z3-solver
 
 #Install qira
 cd ~/
-wget -qO- https://github.com/BinaryAnalysisPlatform/qira/archive/v1.2.tar.gz | tar zx && mv qira* qira
+wget -qO- https://github.com/BinaryAnalysisPlatform/qira/archive/v1.3.tar.gz | tar zx && mv qira* qira
 cd qira/
 sudo pip install -r requirements.txt
 sudo ./install.sh
