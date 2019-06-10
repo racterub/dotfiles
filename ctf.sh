@@ -8,6 +8,9 @@ echo "+==============================+"
 #overrite dot files
 cp ./.gdbinit ~/
 
+#set /opt's owner
+sudo chown -R $(whoami) /opt
+
 #Update & upgrade
 sudo apt-get update
 sudo apt-get -y upgrade
@@ -51,7 +54,7 @@ docker pull klee/klee
 wget https://raw.githubusercontent.com/L4ys/LazyKLEE/master/LazyKLEE.py
 chmod +x LazyKLEE.py
 sudo mv LazyKLEE.py /usr/local/bin/LazyKLEE
-sudo usermod -aG docker vagrant #change this
+sudo usermod -aG docker $(whoami)
 
 #Install Hashpump
 sudo apt-get install -y g++ libssl-dev
@@ -64,9 +67,19 @@ sudo make install
 ## z3
 sudo pip3 install --upgrade z3-solver
 
+#Install hydra
+apt-get -y install libssl-dev libssh-dev libidn11-dev libpcre3-dev libgtk2.0-dev libmysqlclient-dev libpq-dev libsvn-dev firebird2.1-dev libncp-dev hydra gcc
+
+#Install msfconsole
+curl https://raw.githubusercontent.com/rapid7/metasploit-omnibus/master/config/templates/metasploit-framework-wrappers/msfupdate.erb > msfinstall && chmod 755 msfinstall && sudo ./msfinstall
+
+#Install searchsploit
+git clone https://github.com/offensive-security/exploitdb.git /opt/exploitdb
+sed 's|path_array+=(.*)|path_array+=("/opt/exploitdb")|g' /opt/exploitdb/.searchsploit_rc > ~/.searchsploit_rc
+sudo ln -sf /opt/exploitdb/searchsploit /usr/local/bin/searchsploit
 
 #Install qira
-cd ~/
+cd /opt
 wget -qO- https://github.com/BinaryAnalysisPlatform/qira/archive/v1.3.tar.gz | tar zx && mv qira* qira
 cd qira/
 sudo pip install -r requirements.txt
