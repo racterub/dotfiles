@@ -27,8 +27,9 @@ sudo pip3 install angr --upgrade
 #Install ltrace,strace,nmap
 sudo apt-get install -y nmap strace ltrace
 #Install exiftool, pngcheck for forensic
-sudo apt-get install -y exiftool pngcheck
-sudo apt-get install -y sqlmap
+sudo apt-get install -y exiftool pngcheck sqlmap
+
+#Install ipython2/3
 sudo pip3 install ipython
 sudo pip install ipython
 
@@ -39,7 +40,7 @@ git clone https://github.com/scwuaptx/peda.git ~/.peda/
 git clone https://github.com/scwuaptx/Pwngdb.git ~/.pwngdb/
 echo 0 | sudo tee /proc/sys/kernel/yama/ptrace_scope
 cp ~/.peda/.inputrc ~/
- 
+
 #Install pwntools
 sudo apt-get install -y python2.7 python-pip python-dev git libssl-dev libffi-dev build-essential
 sudo pip install --upgrade pwntools
@@ -58,12 +59,12 @@ sudo usermod -aG docker $(whoami)
 
 #Install Hashpump
 sudo apt-get install -y g++ libssl-dev
-cd ~/
+cd /opt
 git clone https://github.com/bwall/HashPump.git
 cd HashPump/
 sudo make
 sudo make install
-    
+
 ## z3
 sudo pip3 install --upgrade z3-solver
 
@@ -71,12 +72,21 @@ sudo pip3 install --upgrade z3-solver
 apt-get -y install libssl-dev libssh-dev libidn11-dev libpcre3-dev libgtk2.0-dev libmysqlclient-dev libpq-dev libsvn-dev firebird2.1-dev libncp-dev hydra gcc
 
 #Install msfconsole
+mkdir /opt/msf
+cd /opt/msf
 curl https://raw.githubusercontent.com/rapid7/metasploit-omnibus/master/config/templates/metasploit-framework-wrappers/msfupdate.erb > msfinstall && chmod 755 msfinstall && sudo ./msfinstall
 
 #Install searchsploit
 git clone https://github.com/offensive-security/exploitdb.git /opt/exploitdb
 sed 's|path_array+=(.*)|path_array+=("/opt/exploitdb")|g' /opt/exploitdb/.searchsploit_rc > ~/.searchsploit_rc
 sudo ln -sf /opt/exploitdb/searchsploit /usr/local/bin/searchsploit
+
+#Install jtr
+cd /opt
+git clone https://github.com/magnumripper/JohnTheRipper
+sudo apt-get -y install build-essential libssl-dev git zlib1g-dev yasm libgmp-dev libpcap-dev pkg-config libbz2-dev
+cd john/src
+sudo ./configure && sudo make -s clean && sudo make -sj4
 
 #Install qira
 cd /opt
@@ -89,7 +99,7 @@ sudo ./bdistrib.sh
 sudo ./run_tests_static.sh
 
 #Install binwalk
-cd ~/
+cd /opt
 sudo apt-get install python-lzma
 git clone https://github.com/ReFirmLabs/binwalk.git
 cd binwalk/
