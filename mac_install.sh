@@ -9,7 +9,8 @@ if type xcode-select >&- && xpath=$( xcode-select --print-path ) &&
     :
 else
    echo -e "${COLOR_RED}Your Xcode Command-Line tool is not installed"
-   echo -e "Exiting....${COLOR_RESET}"
+   echo -e "Installing Xcoode Command-Line tool${COLOR_RESET}"
+   xcode-select --install
    exit
 fi
 
@@ -32,8 +33,14 @@ cp ./.zshrc ~/
 cp ./.vimrc ~/
 cp ./.tmux.conf ~/
 
-#Vim
-brew install macvim --with-override-system-vim
+#Install tools via Homebrew
+brew tap
+brew install cmake tmux
+
+
+#vim
+#Homebrew now dont accept --with-override-system-vim
+brew install macvim -- --with-override-system-vim
 
 #Vundle & Plugins
 git clone https://github.com/VundleVim/Vundle.vim.git ~/.vim/bundle/Vundle.vim/
