@@ -38,7 +38,7 @@ if $DOTFILE; then
     echo "+===========================================+"
 
     #Install essentials
-    sudo apt-get-get install -y build-essential cmake python-dev python-pip python3-pip git bash-completion
+    sudo apt-get install -y build-essential cmake python-dev python-pip python3-pip git bash-completion
 
     #Overwrite Dotfile
     cp ./.bashrc ~/
