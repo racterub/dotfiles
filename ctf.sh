@@ -50,11 +50,6 @@ sudo -H pip install xortool
 
 #Install Klee
 curl -sSL https://get.docker.com/ | sudo sh
-docker pull klee/klee
-wget https://raw.githubusercontent.com/L4ys/LazyKLEE/master/LazyKLEE.py
-chmod +x LazyKLEE.py
-sudo mv LazyKLEE.py /usr/local/bin/LazyKLEE
-sudo usermod -aG docker $(whoami)
 
 #Install Hashpump
 sudo apt-get install -y g++ libssl-dev
@@ -81,7 +76,7 @@ sudo ln -sf /opt/exploitdb/searchsploit /usr/local/bin/searchsploit
 cd /opt
 git clone https://github.com/magnumripper/JohnTheRipper
 sudo apt-get -y install build-essential libssl-dev git zlib1g-dev yasm libgmp-dev libpcap-dev pkg-config libbz2-dev
-cd john/src
+cd JohnTheRipper/src
 sudo ./configure && sudo make -s clean && sudo make -sj4
 
 #Install qira
@@ -99,11 +94,11 @@ cd /opt
 sudo apt-get install python-lzma
 git clone https://github.com/ReFirmLabs/binwalk.git
 cd binwalk/
-sudo python setup.py install
+sudo python3 setup.py install
 sudo ./deps.sh
 
 #Install gmpy2 & deps
-$root = "/opt"
+root = "/opt"
 sudo mkdir -p $root/src
 sudo mkdir -p $root/static
 
@@ -151,7 +146,7 @@ sudo make install
 cd $root/src
 sudo wget https://github.com/aleaxit/gmpy/releases/download/gmpy2-2.1.0a1/gmpy2-2.1.0a1.tar.gz
 sudo tar zxvf gmpy2-2.1.0a1.tar.gz
-cd gmpy2-2.1.0.a1
+cd gmpy2-2.1.0a1
 sudo python setup.py build_ext --static=$root/static install
 
 

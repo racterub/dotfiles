@@ -62,9 +62,10 @@ sudo make install
 
 #docker
 brew cask install docker
-
-#font
-cp ./monaco_powerline.ttf /Users/macintosh/Library/Fonts/
+docker pull klee/klee
+curl -O  https://raw.githubusercontent.com/L4ys/LazyKLEE/master/LazyKLEE.py
+chmod +x LazyKLEE.py
+sudo mv LazyKLEE.py /usr/local/bin/LazyKLEE
 
 #zsh oh-my-zsh
 brew install zsh

@@ -40,6 +40,8 @@ if $DOTFILE; then
     #Install essentials
     sudo apt-get install -y build-essential cmake python-dev python-pip python3-pip git bash-completion
 
+    sudo pip3 install pip --upgrade
+
     #Overwrite Dotfile
     cp ./.bashrc ~/
     cp ./.vimrc ~/
