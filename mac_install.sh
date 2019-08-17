@@ -34,9 +34,14 @@ cp ./.vimrc ~/
 cp ./.tmux.conf ~/
 
 #Install tools via Homebrew
-brew tap
-brew install cmake tmux
+brew tap caffix/amass
+brew install cmake tmux amass sqlmap nmap exploitdb netcat youtube-dl openvpn
+#Wait for Officials move formule to homebrew
+brew install --HEAD universal-ctags/universal-ctags/universal-ctags
 
+
+#pipenv
+pip3 install pipenv
 
 #vim
 #Homebrew now dont accept --with-override-system-vim
@@ -54,8 +59,6 @@ cmake .
 sudo make
 sudo make install
 
-#virtualenv virtualenvwrapper
-sudo pip3 install virtualenv virtualenvwrapper
 
 #docker
 brew cask install docker
@@ -65,7 +68,7 @@ cp ./monaco_powerline.ttf /Users/macintosh/Library/Fonts/
 
 #zsh oh-my-zsh
 brew install zsh
-sudo sh -c "echo $(which zsh) >> /etc/shells" 
+sudo sh -c "echo $(which zsh) >> /etc/shells"
 sudo chsh -s $(which zsh)
 sudo sh -c "$(curl -fsSL https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh)"
 

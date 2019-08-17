@@ -72,6 +72,8 @@ plugins=(git zsh-autosuggestions docker-compose osx vundle vscode vagrant)
 
 source $ZSH/oh-my-zsh.sh
 
+DISABLE_MAGIC_FUNCTIONS=true
+
 # User configuration
 
 # export MANPATH="/usr/local/man:$MANPATH"
@@ -100,10 +102,6 @@ source $ZSH/oh-my-zsh.sh
 #
 # virtualenv
 
-export WORKON_HOME=~/.venv
-export VIRTUALENVWRAPPER_PYTHON=`which python3`
-source /usr/local/bin/virtualenvwrapper.sh
-source /usr/local/bin/virtualenvwrapper_lazy.sh
 
 POWERLEVEL9K_LEFT_PROMPT_ELEMENTS=(virtualenv user dir vcs)
 POWERLEVEL9K_RIGHT_PROMPT_ELEMENTS=(ram time)
@@ -120,3 +118,7 @@ alias vi='vim'
 alias la='ls -A'
 alias l='ls -CF'
 alias rezsh='source ~/.zshrc'
+
+
+export LC_ALL=en_US.UTF-8
+export LANG=en_US.UTF-8

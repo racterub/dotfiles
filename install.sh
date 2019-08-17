@@ -26,7 +26,7 @@ if $UPGRADE; then
     echo "+==========================+"
     echo "|Updating & Upgrading..... |"
     echo "+==========================+"
-    sudo apt-get update
+    sudo apt-get-get update
     sudo apt-get -y upgrade
     sudo apt-get -y dist-upgrade
     sudo apt-get -y autoremove
@@ -38,7 +38,7 @@ if $DOTFILE; then
     echo "+===========================================+"
 
     #Install essentials
-    sudo apt-get install -y build-essential cmake python-dev python-pip python3-pip git bash-completion
+    sudo apt-get-get install -y build-essential cmake python-dev python-pip python3-pip git bash-completion
 
     #Overwrite Dotfile
     cp ./.bashrc ~/
@@ -56,7 +56,7 @@ if $DOTFILE; then
     cd ~/
     git clone https://github.com/vim/vim.git
     cd ~/vim/
-    PYTHON2_CONFIG_DIR=$(find /usr -type d -name 'config*' | grep python2 | grep -v dist-packages)
+    # PYTHON2_CONFIG_DIR=$(find /usr -type d -name 'config*' | grep python2 | grep -v dist-packages)
     PYTHON3_CONFIG_DIR=$(find /usr -type d -name 'config*' | grep python3 | grep -v dist-packages)
     ./configure --with-features=huge \
             --enable-multibyte \
@@ -75,9 +75,11 @@ if $DOTFILE; then
     sudo update-alternatives --set vi /usr/bin/vim
 
     #Install powerline-status
-    #Install with python version 3 to prevent python2 EOL 
-    sudo pip3 install powerline-status
+    #Install with python version 3 to prevent python2 EOL
+    sudo -H pip3 install powerline-status
     sudo apt-get install -y fonts-powerline powerline
+
+    sudo apt-get install ctags
 
     #Install vim plugins
     git clone https://github.com/VundleVim/Vundle.vim.git ~/.vim/bundle/Vundle.vim/
@@ -89,9 +91,9 @@ if $DOTFILE; then
     cmake .
     sudo make
     sudo make install
-    
+
     #Install virtualenv virtualenvwrapper
-    sudo pip3 install virtualenv virtualenvwrapper
+    sudo -H pip3 install virtualenv virtualenvwrapper
 fi
 
 echo "===================================="
