@@ -35,13 +35,13 @@ cp ./.tmux.conf ~/
 
 #Install tools via Homebrew
 brew tap caffix/amass
-brew install cmake tmux amass sqlmap nmap exploitdb netcat youtube-dl openvpn
-#Wait for Officials move formule to homebrew
-brew install --HEAD universal-ctags/universal-ctags/universal-ctags
+brew install cmake tmux amass sqlmap nmap exploitdb netcat youtube-dl openvpn jenv python
+brew tap universal-ctags/universal-ctags
+brew install --HEAD universal-ctags
 
 
 #pipenv
-pip3 install pipenv
+sudo pip3 install pipenv
 
 #vim
 #Homebrew now dont accept --with-override-system-vim
@@ -52,7 +52,6 @@ git clone https://github.com/VundleVim/Vundle.vim.git ~/.vim/bundle/Vundle.vim/
 vim +PluginInstall +qall
 
 #Tmux & Plugins
-brew install tmux
 git clone https://github.com/racterub/tmux-mem-cpu-load.git ~/.tmux
 cd ~/.tmux/
 cmake .
@@ -70,8 +69,8 @@ sudo mv LazyKLEE.py /usr/local/bin/LazyKLEE
 #zsh oh-my-zsh
 brew install zsh
 sudo sh -c "echo $(which zsh) >> /etc/shells"
-sudo chsh -s $(which zsh)
-sudo sh -c "$(curl -fsSL https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh)"
+chsh -s $(which zsh)
+sh -c "$(curl -fsSL https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh)"
 
 #zsh theme - powerlevel9k
 git clone https://github.com/bhilburn/powerlevel9k.git ~/.oh-my-zsh/custom/themes/powerlevel9k

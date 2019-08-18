@@ -78,7 +78,7 @@ if $DOTFILE; then
 
     #Install powerline-status
     #Install with python version 3 to prevent python2 EOL
-    sudo -H pip3 install powerline-status
+    sudo pip3 install powerline-status
     sudo apt-get install -y fonts-powerline powerline
 
     sudo apt-get install ctags
@@ -95,7 +95,7 @@ if $DOTFILE; then
     sudo make install
 
     #Install virtualenv virtualenvwrapper
-    sudo -H pip3 install virtualenv virtualenvwrapper
+    sudo pip3 install virtualenv virtualenvwrapper
 fi
 
 echo "===================================="

@@ -22,15 +22,15 @@ sudo apt-get update
 sudo apt-get install -y gcc-multilib
 
 #Install angr
-sudo apt-get -y install python-dev libffi-dev build-essential virtualenvwrapper
-sudo -H pip3 install angr --upgrade
+sudo apt-get -y install python-dev libffi-dev build-essential
+sudo pip3 install angr --upgrade
 #Install ltrace,strace,nmap
 sudo apt-get install -y nmap strace ltrace
 #Install exiftool, pngcheck for forensic
 sudo apt-get install -y exiftool pngcheck sqlmap
 
 #Install ipython2/3
-sudo -H pip3 install ipython
+sudo pip3 install ipython
 
 #Install gdb,  angelboy's Pwngdb & gdb-peda
 sudo apt-get install -y gdb
@@ -40,12 +40,12 @@ git clone https://github.com/scwuaptx/Pwngdb.git ~/.pwngdb/
 echo 0 | sudo tee /proc/sys/kernel/yama/ptrace_scope
 cp ~/.peda/.inputrc ~/
 
-#Install pwntools
+#Install pwntoolssudo
 sudo apt-get install -y python2.7 python-pip python-dev git libssl-dev libffi-dev build-essential
-sudo -H pip install --upgrade pwntools
+sudo pip install --upgrade pwntools
 
 #Install xortool
-sudo -H pip install xortool
+sudo pip install xortool
 
 
 #Install Klee
@@ -60,7 +60,7 @@ sudo make
 sudo make install
 
 ## z3
-sudo -H pip3 install --upgrade z3-solver
+sudo pip3 install --upgrade z3-solver
 
 #Install msfconsole
 mkdir /opt/msf
@@ -83,7 +83,7 @@ sudo ./configure && sudo make -s clean && sudo make -sj4
 cd /opt
 wget -qO- https://github.com/BinaryAnalysisPlatform/qira/archive/v1.3.tar.gz | tar zx && mv qira* qira
 cd qira/
-sudo -H pip install -r requirements.txt
+sudo pip install -r requirements.txt
 sudo ./install.sh
 sudo ./fetchlibs.sh
 sudo ./bdistrib.sh
