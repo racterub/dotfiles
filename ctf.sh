@@ -63,6 +63,7 @@ git clone https://github.com/bwall/HashPump.git
 cd HashPump/
 sudo make
 sudo make install
+cd ~/
 sudo rm -rf /opt/HashPump
 
 ## z3
@@ -73,6 +74,8 @@ sudo python scripts/mk_make.py --python
 cd build
 sudo make
 sudo make install
+cd ~/
+sudo rm -rf /opt/z3
 
 #Install msfconsole
 curl -sSL https://raw.githubusercontent.com/rapid7/metasploit-omnibus/master/config/templates/metasploit-framework-wrappers/msfupdate.erb | sudo sh
@@ -106,6 +109,8 @@ git clone https://github.com/ReFirmLabs/binwalk.git
 cd binwalk/
 sudo python3 setup.py install
 sudo ./deps.sh
+cd ~/
+sudo rm -rf /opt/binwalk
 
 #Install gmpy2 & deps
 root = "/opt"
