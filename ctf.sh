@@ -5,6 +5,9 @@ echo "+==============================+"
 echo "|Deploying CTF environment.... |"
 echo "+==============================+"
 
+#Activate Virtualenvwrapper api
+source `which virtualenvwrapper.sh`
+
 #overrite dot files
 cp ./.gdbinit ~/
 
@@ -23,7 +26,7 @@ sudo apt-get install -y gcc-multilib
 
 #Install angr
 sudo apt-get -y install python-dev libffi-dev build-essential
-sudo pip3 install angr --upgrade
+mkvirtualenv --python=$(which python3) angr && pip install angr && deactivate
 #Install ltrace,strace,nmap
 sudo apt-get install -y nmap strace ltrace
 #Install exiftool, pngcheck for forensic
@@ -31,6 +34,7 @@ sudo apt-get install -y exiftool pngcheck sqlmap
 
 #Install ipython2/3
 sudo pip3 install ipython
+sudo pip install ipython
 
 #Install gdb,  angelboy's Pwngdb & gdb-peda
 sudo apt-get install -y gdb
@@ -40,7 +44,7 @@ git clone https://github.com/scwuaptx/Pwngdb.git ~/.pwngdb/
 echo 0 | sudo tee /proc/sys/kernel/yama/ptrace_scope
 cp ~/.peda/.inputrc ~/
 
-#Install pwntoolssudo
+#Install pwntools
 sudo apt-get install -y python2.7 python-pip python-dev git libssl-dev libffi-dev build-essential
 sudo pip install --upgrade pwntools
 
@@ -48,8 +52,9 @@ sudo pip install --upgrade pwntools
 sudo pip install xortool
 
 
-#Install Klee
+#Install docker
 curl -sSL https://get.docker.com/ | sudo sh
+sudo usermod -aG docker $(whoami)
 
 #Install Hashpump
 sudo apt-get install -y g++ libssl-dev
@@ -58,14 +63,19 @@ git clone https://github.com/bwall/HashPump.git
 cd HashPump/
 sudo make
 sudo make install
+sudo rm -rf /opt/HashPump
 
 ## z3
-sudo pip3 install --upgrade z3-solver
+cd /opt
+git clone https://github.com/Z3Prover/z3
+cd z3/
+sudo python scripts/mk_make.py --python
+cd build
+sudo make
+sudo make install
 
 #Install msfconsole
-mkdir /opt/msf
-cd /opt/msf
-curl https://raw.githubusercontent.com/rapid7/metasploit-omnibus/master/config/templates/metasploit-framework-wrappers/msfupdate.erb > msfinstall && chmod 755 msfinstall && sudo ./msfinstall
+curl -sSL https://raw.githubusercontent.com/rapid7/metasploit-omnibus/master/config/templates/metasploit-framework-wrappers/msfupdate.erb | sudo sh
 
 #Install searchsploit
 git clone https://github.com/offensive-security/exploitdb.git /opt/exploitdb
@@ -104,8 +114,8 @@ sudo mkdir -p $root/static
 
 #Install m4
 cd $root/src
-sudo wget https://ftp.gnu.org/gnu/m4/m4-1.4.18.tar.gz
-sudo tar zxvf m4-1.4.18.tar.gz
+wget https://ftp.gnu.org/gnu/m4/m4-1.4.18.tar.gz
+tar zxvf m4-1.4.18.tar.gz
 cd m4-1.4.18
 sudo ./configure --prefix=/usr/local
 sudo make
@@ -114,8 +124,8 @@ sudo make install
 
 #Install gmp
 cd $root/src
-sudo wget https://gmplib.org/download/gmp/gmp-6.1.2.tar.xz
-sudo tar Jxvf gmp-6.1.2.tar.xz
+wget https://gmplib.org/download/gmp/gmp-6.1.2.tar.xz
+tar Jxvf gmp-6.1.2.tar.xz
 cd gmp-6.1.2
 sudo ./configure --prefix=$root/static --enable-static --disable-shared --with-pic
 sudo make
@@ -124,8 +134,8 @@ sudo make install
 
 #Install mpfr
 cd $root/src
-sudo wget https://www.mpfr.org/mpfr-current/mpfr-4.0.2.tar.xz
-sudo tar Jxvf mpfr-4.0.2.tar.xz
+wget https://www.mpfr.org/mpfr-current/mpfr-4.0.2.tar.xz
+tar Jxvf mpfr-4.0.2.tar.xz
 cd mpfr-4.0.2
 sudo ./configure --prefix=$root/static --enable-static --disable-shared --with-pic --with-gmp=$root/static
 sudo make
@@ -134,8 +144,8 @@ sudo make install
 
 #Install mpc
 cd $root/src
-sudo wget ftp://ftp.gnu.org/gnu/mpc/mpc-1.1.0.tar.gz
-sudo tar zxvf mpc-1.1.0.tar.gz
+wget ftp://ftp.gnu.org/gnu/mpc/mpc-1.1.0.tar.gz
+tar zxvf mpc-1.1.0.tar.gz
 cd mpc-1.1.0
 sudo ./configure --prefix=$root/static --enable-static --disable-shared --with-pic --with-gmp=$root/static --with-mpfr=$root/static
 sudo make
@@ -144,8 +154,8 @@ sudo make install
 
 #Install gmpy2
 cd $root/src
-sudo wget https://github.com/aleaxit/gmpy/releases/download/gmpy2-2.1.0a1/gmpy2-2.1.0a1.tar.gz
-sudo tar zxvf gmpy2-2.1.0a1.tar.gz
+wget https://github.com/aleaxit/gmpy/releases/download/gmpy2-2.1.0a1/gmpy2-2.1.0a1.tar.gz
+tar zxvf gmpy2-2.1.0a1.tar.gz
 cd gmpy2-2.1.0a1
 sudo python setup.py build_ext --static=$root/static install
 

@@ -40,7 +40,10 @@ if $DOTFILE; then
     #Install essentials
     sudo apt-get install -y build-essential cmake python-dev python-pip python3-pip git bash-completion
 
-    sudo pip3 install pip --upgrade
+    sudo pip install pip --upgrade
+
+    #set /opt's owner
+    sudo chown -R $(whoami) /opt
 
     #Overwrite Dotfile
     cp ./.bashrc ~/
@@ -55,9 +58,9 @@ if $DOTFILE; then
     libcairo2-dev libx11-dev libxpm-dev libxt-dev python-dev \
     python3-dev ruby-dev lua5.1 lua5.1-dev libperl-dev git
     sudo apt-get remove -y vim vim-runtime
-    cd ~/
+    cd /opt
     git clone https://github.com/vim/vim.git
-    cd ~/vim/
+    cd vim/
     # PYTHON2_CONFIG_DIR=$(find /usr -type d -name 'config*' | grep python2 | grep -v dist-packages)
     PYTHON3_CONFIG_DIR=$(find /usr -type d -name 'config*' | grep python3 | grep -v dist-packages)
     ./configure --with-features=huge \
@@ -75,6 +78,7 @@ if $DOTFILE; then
     sudo update-alternatives --set editor /usr/bin/vim
     sudo update-alternatives --install /usr/bin/vi vi /usr/bin/vim 1
     sudo update-alternatives --set vi /usr/bin/vim
+    sudo rm -rf /opt/vim
 
     #Install powerline-status
     #Install with python version 3 to prevent python2 EOL
@@ -98,6 +102,7 @@ if $DOTFILE; then
     sudo pip3 install virtualenv virtualenvwrapper
 fi
 
+echo "** YOU NEED TO RESTART YOUR TERMINAL OR RE-SSH TO ACTIVATE VIRTUALENV **"
 echo "===================================="
 echo "|        Installation Done         |"
 echo "===================================="
