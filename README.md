@@ -13,7 +13,7 @@ Font is installed and needs to replace iterm setting manually.
 
 And don't forget to change iterm's theme to your taste :D
 
-## ctf.sh (gmpy2-related installation is unstable :))
+## ctf.sh
 Install ctf-related tools
 
 # usage

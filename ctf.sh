@@ -113,9 +113,9 @@ cd ~/
 sudo rm -rf /opt/binwalk
 
 #Install gmpy2 & deps
-root = "/opt"
-sudo mkdir -p $root/src
-sudo mkdir -p $root/static
+root="/opt"
+mkdir -p $root/src
+cmkdir -p $root/static
 
 #Install m4
 cd $root/src
@@ -163,6 +163,10 @@ wget https://github.com/aleaxit/gmpy/releases/download/gmpy2-2.1.0a1/gmpy2-2.1.0
 tar zxvf gmpy2-2.1.0a1.tar.gz
 cd gmpy2-2.1.0a1
 sudo python setup.py build_ext --static=$root/static install
+
+cd ~/
+sudo rm -rf /opt/src
+sudo rm -rf /opt/src
 
 
 echo "===================================="
