@@ -115,7 +115,7 @@ sudo rm -rf /opt/binwalk
 #Install gmpy2 & deps
 root="/opt"
 mkdir -p $root/src
-cmkdir -p $root/static
+mkdir -p $root/static
 
 #Install m4
 cd $root/src
