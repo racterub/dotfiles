@@ -85,6 +85,22 @@ git clone https://github.com/offensive-security/exploitdb.git /opt/exploitdb
 sed 's|path_array+=(.*)|path_array+=("/opt/exploitdb")|g' /opt/exploitdb/.searchsploit_rc > ~/.searchsploit_rc
 sudo ln -sf /opt/exploitdb/searchsploit /usr/local/bin/searchsploit
 
+#Install dirsearch
+cd /opt
+curl https://sourceforge.net/projects/dirb/files/dirb/2.22/dirb222.tar.gz/download -L -o dirb.tar.gz
+tar zxvf dirb.tar.gz
+chmod 775 dirb222/
+cd dirb222/
+for i in `ls`;do
+    if [[ -d $i ]];then
+        chmod 755 $i;
+    fi
+done
+sudo apt-get install -y libcurl4-openssl-dev
+./configure
+make
+sudo make
+
 #Install jtr
 cd /opt
 git clone https://github.com/magnumripper/JohnTheRipper
@@ -111,6 +127,9 @@ sudo python3 setup.py install
 sudo ./deps.sh
 cd ~/
 sudo rm -rf /opt/binwalk
+
+
+#TODO: yafu
 
 #Install gmpy2 & deps
 root="/opt"

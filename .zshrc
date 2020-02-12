@@ -108,7 +108,7 @@ POWERLEVEL9K_RIGHT_PROMPT_ELEMENTS=(ram time)
 
 HOMEBREW_GITHUB_API_TOKEN=275a712d0a9e0b9044d4afb5f96e1ac5a2bcc2c8
 
-source /usr/local/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+
 
 #aliases
 alias tmux='tmux -2'
@@ -118,7 +118,10 @@ alias vi='vim'
 alias la='ls -A'
 alias l='ls -CF'
 alias rezsh='source ~/.zshrc'
+alias rm="trash"
 
 
 export LC_ALL=en_US.UTF-8
 export LANG=en_US.UTF-8
+
+source /usr/local/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh

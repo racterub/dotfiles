@@ -1,6 +1,8 @@
 #!/bin/bash
 
 
+
+
 COLOR_RED='\033[1;31m'
 COLOR_RESET='\033[0m'
 
@@ -35,10 +37,16 @@ cp ./.tmux.conf ~/
 
 #Install tools via Homebrew
 brew tap caffix/amass
-brew install cmake tmux amass sqlmap nmap exploitdb netcat youtube-dl openvpn jenv python
+brew install cmake tmux amass sqlmap nmap exploitdb netcat youtube-dl openvpn jenv python bat
 brew tap universal-ctags/universal-ctags
 brew install --HEAD universal-ctags
 
+#using trash instead of rm
+cd /tmp
+curl https://github.com/sindresorhus/macos-trash/releases/download/1.1.0/trash.zip -LO
+unzip trash.zip
+sudo mv trash/trash /usr/local/bin
+rm -r trash
 
 #pipenv
 sudo pip3 install pipenv
@@ -47,8 +55,19 @@ sudo pip3 install pipenv
 #Homebrew now dont accept --with-override-system-vim
 brew install macvim -- --with-override-system-vim
 
+sudo pip3 install --upgrade pynvim
+sudo pip3 install --upgrade neovim
+
+
+#Vim-Plug & Plugins
+curl -fLo ~/.vim/autoload/plug.vim --create-dirs https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
+vim +PlugInstall
+
+#Install ag
+brew install the_silver_searcher
+
 #Vundle & Plugins
-git clone https://github.com/VundleVim/Vundle.vim.git ~/.vim/bundle/Vundle.vim/
+curl -fLo ~/.vim/autoload/plug.vim --create-dirs https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
 vim +PluginInstall +qall
 
 #Tmux & Plugins

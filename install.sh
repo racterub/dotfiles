@@ -52,6 +52,14 @@ if $DOTFILE; then
     cp ./.screenrc ~/
     cp ./.editorconfig ~/
 
+    #Sourcing bashrc
+    source ~/.bashrc
+
+    #Install nvm
+    curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.35.2/install.sh | bash
+    nvm install v10
+
+
     #Compile vim from source
     sudo apt-get install -y libncurses5-dev libgnome2-dev libgnomeui-dev \
     libgtk2.0-dev libatk1.0-dev libbonoboui2-dev \
@@ -84,13 +92,42 @@ if $DOTFILE; then
     #Install powerline-status
     #Install with python version 3 to prevent python2 EOL
     sudo pip3 install powerline-status
-    sudo apt-get install -y fonts-powerline powerline
+    sudo apt-get install -y powerline
 
-    sudo apt-get install ctags
+    #Install patcher monaco font
+    cd ~/dotfiles
+    git clone https://github.com/powerline/fontpatcher ~/fontpatcher
+    sudo apt-get install -y python-fontforge
+    python ~/fontpatcher/scripts/powerline-fontpatcher monaco_powerline.ttf
+    rm -rf ~/fontpatcher
+
+    #Install ctag
+    cd ~/
+    sudo apt-get install -y gcc make pkg-config autoconf automake python3-docutils libseccomp-dev libjansson-dev libyaml-dev libxml2-dev
+    git clone https://github.com/universal-ctags/ctags
+    cd ctags/
+    ./autogen.sh
+    ./configure
+    make
+    sudo make install
+    cd ../
+    rm -rf ctags
+
+    #Install for deoplete
+    sudo pip3 install --upgrade pynvim
+    sudo pip3 install --upgrade neovim
+
+    #Install linters
+    sudo apt-get install -y clang
+    sudo pip3 install pylint
+    npm install -g eslint
 
     #Install vim plugins
-    git clone https://github.com/VundleVim/Vundle.vim.git ~/.vim/bundle/Vundle.vim/
-    vim +PluginInstall +qall
+    curl -fLo ~/.vim/autoload/plug.vim --create-dirs https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
+    vim +PlugInstall
+
+    #Install ag
+    sudo apt install silversearcher-ag
 
     #Install tmux-memory-status
     git clone https://github.com/racterub/tmux-mem-cpu-load.git ~/.tmux
@@ -101,8 +138,11 @@ if $DOTFILE; then
 
     #Install virtualenv virtualenvwrapper
     sudo pip3 install virtualenv virtualenvwrapper
+    sudo pip3 install pipenv
 fi
 
+echo ""
+echo ""
 echo "** YOU NEED TO RESTART YOUR TERMINAL OR RE-SSH TO ACTIVATE VIRTUALENV **"
 echo "===================================="
 echo "|        Installation Done         |"
