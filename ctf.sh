@@ -185,7 +185,7 @@ sudo python setup.py build_ext --static=$root/static install
 
 cd ~/
 sudo rm -rf /opt/src
-sudo rm -rf /opt/src
+sudo rm -rf /opt/static
 
 
 echo "===================================="

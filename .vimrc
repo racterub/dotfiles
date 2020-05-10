@@ -18,6 +18,7 @@ filetype indent on
 
 " Fast saving
 nmap <leader>w :w!<cr>
+nmap <leader>W :W<cr>
 
 " :W sudo saves the file
 " STOP EDITING RO FILES WITHOUT SUDO!!!!!!!
