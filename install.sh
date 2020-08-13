@@ -38,7 +38,7 @@ if $DOTFILE; then
     echo "+===========================================+"
 
     #Install essentials
-    sudo apt-get install -y build-essential cmake python-dev python-pip python3-pip git bash-completion
+    sudo apt-get install -y curl build-essential cmake python-dev python-pip python3-pip git bash-completion
 
     sudo pip install pip --upgrade
 
@@ -57,6 +57,7 @@ if $DOTFILE; then
 
     #Install nvm
     curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.35.2/install.sh | bash
+    source ~/.bashrc
     nvm install v10
 
 
@@ -69,19 +70,18 @@ if $DOTFILE; then
     cd /opt
     git clone https://github.com/vim/vim.git
     cd vim/
-    # PYTHON2_CONFIG_DIR=$(find /usr -type d -name 'config*' | grep python2 | grep -v dist-packages)
-    PYTHON3_CONFIG_DIR=$(find /usr -type d -name 'config*' | grep python3 | grep -v dist-packages)
     ./configure --with-features=huge \
             --enable-multibyte \
-            --enable-rubyinterp \
-            --enable-python3interp \
-            --with-python3-config-dir=${PYTHON3_CONFIG_DIR} \
-            --enable-perlinterp \
-            --enable-luainterp \
-            --enable-gui=gtk2 --enable-cscope --prefix=/usr \
-    sudo make VIMRUNTIMEDIR=/usr/share/vim/vim81
+            --enable-rubyinterp=yes \
+            --enable-python3interp=yes \
+            --with-python3-config-dir=$(python3-config --configdir) \
+            --enable-perlinterp=yes \
+            --enable-luainterp=yes \
+            --enable-gui=gtk2 \
+            --enable-cscope \
+            --prefix=/usr/local
+    make VIMRUNTIMEDIR=/usr/local/share/vim/vim82
     sudo make install
-    sudo apt-get install -y vim-runtime
     sudo update-alternatives --install /usr/bin/editor editor /usr/bin/vim 1
     sudo update-alternatives --set editor /usr/bin/vim
     sudo update-alternatives --install /usr/bin/vi vi /usr/bin/vim 1
