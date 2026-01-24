@@ -1,150 +1,106 @@
 #!/bin/bash
-function ask()
-{
-    while true; do
-        read -p "$2" choice
-        case $choice in
-            [Yy]* )
-                declare -g "$1=true"
-                break;
-                ;;
-            [Nn]* )
-                declare -g "$1=false"
-                break;
-                ;;
-            *)
-                echo "Please enter y or n"
-                ;;
-        esac
-    done
+set -euo pipefail
+
+# Claude Code dotfiles installer
+# Symlinks claude/ contents to ~/.claude/
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+CLAUDE_DIR="$HOME/.claude"
+BACKUP_DIR="$HOME/.claude-backup-$(date +%Y%m%d-%H%M%S)"
+
+echo "Claude Code dotfiles installer"
+echo "=============================="
+echo ""
+
+# Check if claude directory exists in dotfiles
+if [[ ! -d "$SCRIPT_DIR/claude" ]]; then
+    echo "Error: claude/ directory not found in $SCRIPT_DIR"
+    exit 1
+fi
+
+# Create .claude directory if it doesn't exist
+mkdir -p "$CLAUDE_DIR"
+
+# Function to backup and symlink
+backup_and_link() {
+    local src="$1"
+    local dest="$2"
+    local name="$(basename "$dest")"
+
+    if [[ -e "$dest" || -L "$dest" ]]; then
+        if [[ -L "$dest" ]]; then
+            local current_target="$(readlink "$dest")"
+            if [[ "$current_target" == "$src" ]]; then
+                echo "  [skip] $name already linked correctly"
+                return
+            fi
+        fi
+        mkdir -p "$BACKUP_DIR"
+        echo "  [backup] $name -> $BACKUP_DIR/"
+        mv "$dest" "$BACKUP_DIR/"
+    fi
+
+    ln -s "$src" "$dest"
+    echo "  [link] $name -> $src"
 }
 
-ask UPGRADE "Update & upgrade every thing? (y/n): "
-ask DOTFILE "Using Modified Dotfile? [including tons of plugins] (y/n): "
+# Handle CLAUDE.md
+echo ""
+echo "Setting up CLAUDE.md..."
+backup_and_link "$SCRIPT_DIR/claude/CLAUDE.md" "$CLAUDE_DIR/CLAUDE.md"
 
-if $UPGRADE; then
-    echo "+==========================+"
-    echo "|Updating & Upgrading..... |"
-    echo "+==========================+"
-    sudo apt-get update
-    sudo apt-get -y upgrade
-    sudo apt-get -y dist-upgrade
-    sudo apt-get -y autoremove
-fi
+# Handle skills directory
+echo ""
+echo "Setting up skills/..."
+backup_and_link "$SCRIPT_DIR/claude/skills" "$CLAUDE_DIR/skills"
 
-if $DOTFILE; then
-    echo "+===========================================+"
-    echo "|Deploying Dotfile & Installing plugins.....|"
-    echo "+===========================================+"
+# Handle .mcp.json (MCP servers config)
+echo ""
+echo "Setting up MCP servers..."
+MCP_FILE="$HOME/.mcp.json"
 
-    #Install essentials
-    sudo apt-get install -y curl build-essential cmake python-dev python-pip python3-pip git bash-completion
+if [[ -f "$MCP_FILE" ]]; then
+    # Check if jq is available
+    if command -v jq &> /dev/null; then
+        # Check if context7 is already configured
+        if jq -e '.mcpServers.context7' "$MCP_FILE" &> /dev/null; then
+            echo "  [skip] context7 MCP already configured"
+        else
+            echo "  [merge] Adding context7 MCP to existing .mcp.json"
+            mkdir -p "$BACKUP_DIR"
+            cp "$MCP_FILE" "$BACKUP_DIR/.mcp.json"
 
-    sudo pip install pip --upgrade
-
-    #set /opt's owner
-    sudo chown -R $(whoami) /opt
-
-    #Overwrite Dotfile
-    cp ./.bashrc ~/
-    cp ./.vimrc ~/
-    cp ./.tmux.conf ~/
-    cp ./.screenrc ~/
-    cp ./.editorconfig ~/
-
-    #Sourcing bashrc
-    source ~/.bashrc
-
-    #Install nvm
-    curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.35.2/install.sh | bash
-    source ~/.bashrc
-    nvm install v10
-
-
-    #Compile vim from source
-    sudo apt-get install -y libncurses5-dev libgnome2-dev libgnomeui-dev \
-    libgtk2.0-dev libatk1.0-dev libbonoboui2-dev \
-    libcairo2-dev libx11-dev libxpm-dev libxt-dev python-dev \
-    python3-dev ruby-dev lua5.1 lua5.1-dev libperl-dev git
-    sudo apt-get remove -y vim vim-runtime
-    cd /opt
-    git clone https://github.com/vim/vim.git
-    cd vim/
-    ./configure --with-features=huge \
-            --enable-multibyte \
-            --enable-rubyinterp=yes \
-            --enable-python3interp=yes \
-            --with-python3-config-dir=$(python3-config --configdir) \
-            --enable-perlinterp=yes \
-            --enable-luainterp=yes \
-            --enable-gui=gtk2 \
-            --enable-cscope \
-            --prefix=/usr/local
-    make VIMRUNTIMEDIR=/usr/local/share/vim/vim82
-    sudo make install
-    sudo update-alternatives --install /usr/bin/editor editor /usr/bin/vim 1
-    sudo update-alternatives --set editor /usr/bin/vim
-    sudo update-alternatives --install /usr/bin/vi vi /usr/bin/vim 1
-    sudo update-alternatives --set vi /usr/bin/vim
-    cd ~/
-    sudo rm -rf /opt/vim
-
-    #Install powerline-status
-    #Install with python version 3 to prevent python2 EOL
-    sudo pip3 install powerline-status
-    sudo apt-get install -y powerline
-
-    #Install patcher monaco font
-    cd ~/dotfiles
-    git clone https://github.com/powerline/fontpatcher ~/fontpatcher
-    sudo apt-get install -y python-fontforge
-    python ~/fontpatcher/scripts/powerline-fontpatcher monaco_powerline.ttf
-    rm -rf ~/fontpatcher
-
-    #Install ctag
-    cd ~/
-    sudo apt-get install -y gcc make pkg-config autoconf automake python3-docutils libseccomp-dev libjansson-dev libyaml-dev libxml2-dev
-    git clone https://github.com/universal-ctags/ctags
-    cd ctags/
-    ./autogen.sh
-    ./configure
-    make
-    sudo make install
-    cd ../
-    rm -rf ctags
-
-    #Install for deoplete
-    sudo pip3 install --upgrade pynvim
-    sudo pip3 install --upgrade neovim
-
-    #Install linters
-    sudo apt-get install -y clang
-    sudo pip3 install pylint
-    npm install -g eslint
-
-    #Install vim plugins
-    curl -fLo ~/.vim/autoload/plug.vim --create-dirs https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
-    vim +PlugInstall
-
-    #Install ag
-    sudo apt install silversearcher-ag
-
-    #Install tmux-memory-status
-    git clone https://github.com/racterub/tmux-mem-cpu-load.git ~/.tmux
-    cd ~/.tmux/
-    cmake .
-    sudo make
-    sudo make install
-
-    #Install virtualenv virtualenvwrapper
-    sudo pip3 install virtualenv virtualenvwrapper
-    sudo pip3 install pipenv
+            # Merge the mcpServers
+            jq -s '{"mcpServers": (.[0].mcpServers // {} | . * .[1].mcpServers)}' \
+                "$MCP_FILE" \
+                "$SCRIPT_DIR/claude/.mcp.json" \
+                > "$MCP_FILE.tmp"
+            mv "$MCP_FILE.tmp" "$MCP_FILE"
+            echo "  [done] context7 MCP added"
+        fi
+    else
+        echo "  [warn] jq not installed, cannot merge .mcp.json"
+        echo "         Please manually add context7 MCP to ~/.mcp.json:"
+        echo ""
+        cat "$SCRIPT_DIR/claude/.mcp.json"
+        echo ""
+    fi
+else
+    cp "$SCRIPT_DIR/claude/.mcp.json" "$MCP_FILE"
+    echo "  [copy] .mcp.json created at ~/.mcp.json"
 fi
 
 echo ""
+echo "=============================="
+echo "Installation complete!"
 echo ""
-echo "** YOU NEED TO RESTART YOUR TERMINAL OR RE-SSH TO ACTIVATE VIRTUALENV **"
-echo "===================================="
-echo "|        Installation Done         |"
-echo "===================================="
-echo "                          - Racterub"
+echo "Installed:"
+echo "  - CLAUDE.md (workflow + guardrails)"
+echo "  - skills/ (qa, sre, infra, backend, frontend, dba, data, security, integration-check)"
+echo "  - context7 MCP server (~/.mcp.json)"
+echo ""
+if [[ -d "$BACKUP_DIR" ]]; then
+    echo "Backups saved to: $BACKUP_DIR"
+    echo ""
+fi
+echo "Restart Claude Code to apply changes."
