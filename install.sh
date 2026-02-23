@@ -49,10 +49,56 @@ echo ""
 echo "Setting up CLAUDE.md..."
 backup_and_link "$SCRIPT_DIR/claude/CLAUDE.md" "$CLAUDE_DIR/CLAUDE.md"
 
-# Handle skills directory
+# Handle rules directory
 echo ""
-echo "Setting up skills/..."
-backup_and_link "$SCRIPT_DIR/claude/skills" "$CLAUDE_DIR/skills"
+echo "Setting up rules/..."
+backup_and_link "$SCRIPT_DIR/claude/rules" "$CLAUDE_DIR/rules"
+
+# Handle hooks directory
+echo ""
+echo "Setting up hooks/..."
+backup_and_link "$SCRIPT_DIR/claude/hooks" "$CLAUDE_DIR/hooks"
+
+# Handle statusline.sh
+echo ""
+echo "Setting up statusline.sh..."
+backup_and_link "$SCRIPT_DIR/claude/statusline.sh" "$CLAUDE_DIR/statusline.sh"
+
+# Handle settings.json (merge, not symlink)
+echo ""
+echo "Setting up settings.json..."
+SETTINGS_FILE="$CLAUDE_DIR/settings.json"
+TEMPLATE="$SCRIPT_DIR/claude/settings.json"
+
+if [[ -f "$SETTINGS_FILE" ]]; then
+    if command -v jq &> /dev/null; then
+        # Check if it's a symlink (from old install) — remove it first
+        if [[ -L "$SETTINGS_FILE" ]]; then
+            echo "  [migrate] Removing old settings.json symlink"
+            mkdir -p "$BACKUP_DIR"
+            cp "$(readlink "$SETTINGS_FILE")" "$BACKUP_DIR/settings.json"
+            rm "$SETTINGS_FILE"
+            # Start fresh with template
+            cp "$TEMPLATE" "$SETTINGS_FILE"
+            echo "  [copy] settings.json created from template"
+        else
+            echo "  [merge] Merging statusLine and hooks into existing settings.json"
+            mkdir -p "$BACKUP_DIR"
+            cp "$SETTINGS_FILE" "$BACKUP_DIR/settings.json"
+            # Merge template keys into existing settings
+            jq -s '.[0] * .[1]' "$SETTINGS_FILE" "$TEMPLATE" > "$SETTINGS_FILE.tmp"
+            mv "$SETTINGS_FILE.tmp" "$SETTINGS_FILE"
+            echo "  [done] statusLine and hooks merged"
+        fi
+    else
+        echo "  [warn] jq not installed, cannot merge settings.json"
+        echo "         Please manually add hooks config from:"
+        cat "$TEMPLATE"
+    fi
+else
+    cp "$TEMPLATE" "$SETTINGS_FILE"
+    echo "  [copy] settings.json created from template"
+fi
 
 # Handle .mcp.json (MCP servers config)
 echo ""
@@ -90,13 +136,24 @@ else
     echo "  [copy] .mcp.json created at ~/.mcp.json"
 fi
 
+# Cleanup old skills symlink if present
+if [[ -L "$CLAUDE_DIR/skills" ]]; then
+    echo ""
+    echo "Cleaning up old skills/..."
+    rm "$CLAUDE_DIR/skills"
+    echo "  [remove] old skills/ symlink removed"
+fi
+
 echo ""
 echo "=============================="
 echo "Installation complete!"
 echo ""
 echo "Installed:"
-echo "  - CLAUDE.md (workflow + guardrails)"
-echo "  - skills/ (qa, sre, infra, backend, frontend, dba, data, security, integration-check)"
+echo "  - CLAUDE.md (personal dev guidelines)"
+echo "  - rules/ (anti-hallucination, quality gates, when-stuck, github)"
+echo "  - hooks/ (session-start, compact-guard)"
+echo "  - statusline.sh"
+echo "  - settings.json (statusLine + hooks, merged)"
 echo "  - context7 MCP server (~/.mcp.json)"
 echo ""
 if [[ -d "$BACKUP_DIR" ]]; then
