@@ -17,11 +17,11 @@ PATTERNS=(
     'rm\s+-rf\s+\$HOME'                             # rm -rf $HOME
     'rm\s+-rf\s+\.\s'                               # rm -rf . (with trailing space/end)
     'rm\s+-rf\s+\.$'                                # rm -rf . (at end of string)
-    'chmod\s+777\s'                                  # chmod 777
+    'chmod\s+777(\s|$)'                               # chmod 777
     'chmod\s+-R\s+777'                               # chmod -R 777
     ':\(\)\s*\{\s*:\|:\s*&\s*\}\s*;'               # fork bomb :(){ :|:& };
     'mkfs\.'                                         # mkfs.ext4 etc
-    '>\s*/dev/sd'                                    # write to disk device
+    '>\s*/dev/(sd|nvme|vd|xvd)'                       # write to disk device
     'dd\s+.*of=/dev/'                                # dd to device
 )
 
