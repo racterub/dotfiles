@@ -82,13 +82,13 @@ if [[ -f "$SETTINGS_FILE" ]]; then
             cp "$TEMPLATE" "$SETTINGS_FILE"
             echo "  [copy] settings.json created from template"
         else
-            echo "  [merge] Merging statusLine and hooks into existing settings.json"
+            echo "  [merge] Merging permissions, statusLine and hooks into existing settings.json"
             mkdir -p "$BACKUP_DIR"
             cp "$SETTINGS_FILE" "$BACKUP_DIR/settings.json"
             # Merge template keys into existing settings
             jq -s '.[0] * .[1]' "$SETTINGS_FILE" "$TEMPLATE" > "$SETTINGS_FILE.tmp"
             mv "$SETTINGS_FILE.tmp" "$SETTINGS_FILE"
-            echo "  [done] statusLine and hooks merged"
+            echo "  [done] permissions, statusLine and hooks merged"
         fi
     else
         echo "  [warn] jq not installed, cannot merge settings.json"
@@ -151,9 +151,9 @@ echo ""
 echo "Installed:"
 echo "  - CLAUDE.md (personal dev guidelines)"
 echo "  - rules/ (anti-hallucination, quality gates, when-stuck, github)"
-echo "  - hooks/ (session-start, compact-guard)"
+echo "  - hooks/ (session-start, compact-guard, bash-guard, edit-format, commit-validate, audit)"
 echo "  - statusline.sh"
-echo "  - settings.json (statusLine + hooks, merged)"
+echo "  - settings.json (permissions + statusLine + hooks, merged)"
 echo "  - context7 MCP server (~/.mcp.json)"
 echo ""
 if [[ -d "$BACKUP_DIR" ]]; then

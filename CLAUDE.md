@@ -8,7 +8,7 @@ This is a **Claude Code development environment setup** repository. It configure
 - Enforced development workflow (Brainstorm → Plan → Approve → Implement → Verify)
 - Anti-hallucination guardrails requiring verification before claims
 - Rules files for operational procedures (auto-loaded from `~/.claude/rules/`)
-- Hooks for session-start context injection and manual compaction control
+- Hooks for session-start context, compaction control, command guarding, auto-formatting, commit validation, and audit logging
 - Context7 MCP integration for documentation lookup
 
 ## Prerequisites
@@ -54,8 +54,12 @@ claude/                 # Claude Code configuration (installed to ~/.claude/)
 ├── settings.json      # Statusline + hooks template (merged, not symlinked)
 ├── statusline.sh      # Statusline script (model, context %, cost, lines)
 ├── hooks/
-│   ├── session-start.sh   # Injects codebase context on new sessions
-│   └── compact-guard.sh   # Blocks auto-compaction, prompts user
+│   ├── session-start.sh       # Injects codebase context on new sessions
+│   ├── compact-guard.sh       # Blocks auto-compaction, prompts user
+│   ├── pre-bash-guard.sh      # Defense-in-depth: blocks dangerous command patterns
+│   ├── pre-commit-validate.sh # Enforces commit quality gates (no --no-verify)
+│   ├── post-edit-format.sh    # Auto-formats files by language after edits
+│   └── post-bash-audit.sh     # Logs all bash commands to ~/.claude/audit.log
 └── rules/
     ├── anti-hallucination.md  # Say "I don't know", use Context7, cite sources
     ├── quality-gates.md       # Definition of done, commit requirements
@@ -75,8 +79,8 @@ claude/                 # Claude Code configuration (installed to ~/.claude/)
 
 - **`claude/CLAUDE.md`**: Personal development guidelines installed to `~/.claude/CLAUDE.md`. Contains edit-approval gate, core principles, tidy first, architecture principles, and decision framework.
 - **`claude/rules/`**: Operational procedure rules auto-loaded by Claude Code from `~/.claude/rules/`. Covers anti-hallucination, quality gates, when-stuck escalation, and GitHub CLI preference.
-- **`claude/hooks/`**: Shell hooks for Claude Code events. `session-start.sh` injects codebase context on new sessions. `compact-guard.sh` blocks auto-compaction so user can decide.
-- **`claude/settings.json`**: Template with `statusLine` and `hooks` config. Merged (not symlinked) into `~/.claude/settings.json` to preserve existing keys like `enabledPlugins`.
+- **`claude/hooks/`**: Shell hooks for Claude Code events. Includes session-start context injection, auto-compaction guard, dangerous command guard, auto-formatting by language, commit quality gate enforcement, and bash command audit logging.
+- **`claude/settings.json`**: Template with `permissions`, `statusLine`, and `hooks` config. Merged (not symlinked) into `~/.claude/settings.json` to preserve existing keys like `enabledPlugins`. Permissions auto-allow read-only commands and prompt for dangerous ones.
 - **`claude/.mcp.json`**: Context7 MCP server config using `@upstash/context7-mcp`.
 - **`claude/statusline.sh`**: Statusline script displaying model name, context usage %, session cost, and lines changed. Requires `jq`.
 - **`install.sh`**: Safe installation with automatic backups, symlink detection, JSON merging, and old skills cleanup.
