@@ -9,6 +9,7 @@ This is a **Claude Code development environment setup** repository. It configure
 - Anti-hallucination guardrails requiring verification before claims
 - Rules files for operational procedures (auto-loaded from `~/.claude/rules/`)
 - Hooks for session-start context, compaction control, command guarding, auto-formatting, commit validation, and audit logging
+- User-scoped memory for cross-project learning
 - Context7 MCP integration for documentation lookup
 
 ## Prerequisites
@@ -31,7 +32,8 @@ This script:
 5. Symlinks `claude/statusline.sh` → `~/.claude/statusline.sh`
 6. Merges `claude/settings.json` into `~/.claude/settings.json` (preserves existing keys like `enabledPlugins`)
 7. Merges Context7 MCP config into `~/.mcp.json`
-8. Cleans up old `skills/` symlink if present
+8. Symlinks `claude/memory/` → `~/.claude/memory/`
+9. Symlinks `claude/skills/` → `~/.claude/skills/`
 
 ### Verify Installation
 
@@ -60,6 +62,15 @@ claude/                 # Claude Code configuration (installed to ~/.claude/)
 │   ├── pre-commit-validate.sh # Enforces commit quality gates (no --no-verify)
 │   ├── post-edit-format.sh    # Auto-formats files by language after edits
 │   └── post-bash-audit.sh     # Logs all bash commands to ~/.claude/audit.log
+├── memory/
+│   ├── MEMORY.md          # User memory index (injected at session start)
+│   ├── mistakes/          # Errors to avoid repeating
+│   ├── patterns/          # Approaches that work well
+│   ├── skill-gaps/        # Areas to proactively compensate for
+│   ├── prompt-quality/    # What makes prompts effective
+│   └── design-outcomes/   # Post-hoc design evaluation
+├── skills/
+│   └── retro/             # /retro skill for end-of-cycle reflection
 └── rules/
     ├── anti-hallucination.md  # Say "I don't know", use Context7, cite sources
     ├── quality-gates.md       # Definition of done, commit requirements
@@ -83,7 +94,9 @@ claude/                 # Claude Code configuration (installed to ~/.claude/)
 - **`claude/settings.json`**: Template with `permissions`, `statusLine`, and `hooks` config. Merged (not symlinked) into `~/.claude/settings.json` to preserve existing keys like `enabledPlugins`. Permissions auto-allow read-only commands and prompt for dangerous ones.
 - **`claude/.mcp.json`**: Context7 MCP server config using `@upstash/context7-mcp`.
 - **`claude/statusline.sh`**: Statusline script displaying model name, context usage %, session cost, and lines changed. Requires `jq`.
-- **`install.sh`**: Safe installation with automatic backups, symlink detection, JSON merging, and old skills cleanup.
+- **`install.sh`**: Safe installation with automatic backups, symlink detection, JSON merging, and memory/skills symlinks.
+- **`claude/memory/`**: User-scoped cross-project memory. Stores mistakes, patterns, skill gaps, prompt quality insights, and design outcomes. Index (`MEMORY.md`) injected at session start. See `claude/rules/memory.md` for read/write policy.
+- **`claude/skills/retro/`**: Structured end-of-cycle retrospective skill. Captures session learnings into memory and surfaces feedback to user.
 
 ## Making Changes
 
