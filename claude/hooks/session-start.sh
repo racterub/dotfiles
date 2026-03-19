@@ -27,6 +27,13 @@ if git -C "$CWD" rev-parse --git-dir > /dev/null 2>&1; then
     CONTEXT+="$(git -C "$CWD" log --oneline -5 2>/dev/null)"$'\n'
 fi
 
+# User memory index
+MEMORY_INDEX="$HOME/.claude/memory/MEMORY.md"
+if [[ -f "$MEMORY_INDEX" ]]; then
+    CONTEXT+=$'\n'"## User Memory"$'\n'
+    CONTEXT+="$(cat "$MEMORY_INDEX")"$'\n'
+fi
+
 # Return as additionalContext JSON
 jq -n --arg ctx "$CONTEXT" '{
     hookSpecificOutput: {
