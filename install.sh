@@ -59,6 +59,16 @@ echo ""
 echo "Setting up hooks/..."
 backup_and_link "$SCRIPT_DIR/claude/hooks" "$CLAUDE_DIR/hooks"
 
+# Handle memory directory
+echo ""
+echo "Setting up memory/..."
+backup_and_link "$SCRIPT_DIR/claude/memory" "$CLAUDE_DIR/memory"
+
+# Handle skills directory
+echo ""
+echo "Setting up skills/..."
+backup_and_link "$SCRIPT_DIR/claude/skills" "$CLAUDE_DIR/skills"
+
 # Handle statusline.sh
 echo ""
 echo "Setting up statusline.sh..."
@@ -136,14 +146,6 @@ else
     echo "  [copy] .mcp.json created at ~/.mcp.json"
 fi
 
-# Cleanup old skills symlink if present
-if [[ -L "$CLAUDE_DIR/skills" ]]; then
-    echo ""
-    echo "Cleaning up old skills/..."
-    rm "$CLAUDE_DIR/skills"
-    echo "  [remove] old skills/ symlink removed"
-fi
-
 echo ""
 echo "=============================="
 echo "Installation complete!"
@@ -152,6 +154,8 @@ echo "Installed:"
 echo "  - CLAUDE.md (personal dev guidelines)"
 echo "  - rules/ (anti-hallucination, quality gates, when-stuck, github)"
 echo "  - hooks/ (session-start, compact-guard, bash-guard, edit-format, commit-validate, audit)"
+echo "  - memory/ (user-scoped cross-project memory)"
+echo "  - skills/ (personal skills: /retro)"
 echo "  - statusline.sh"
 echo "  - settings.json (permissions + statusLine + hooks, merged)"
 echo "  - context7 MCP server (~/.mcp.json)"
