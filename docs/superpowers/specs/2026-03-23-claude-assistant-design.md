@@ -14,7 +14,7 @@ An always-on personal assistant running on Proxmox LXC, accessible via Telegram.
 - **Subagent dispatch** — parallel `claude -p` subprocesses for independent tasks
 - **Google services** — Gmail, Calendar (connected), Drive (deferred)
 - **Security** — replace `--dangerously-skip-permissions` with layered security
-- **Memory** — cross-session persistence via claude-mem
+- **Memory** — cross-session persistence via [claude-mem](https://github.com/nicobailon/claude-mem) (Claude Code plugin providing filesystem-based memory with semantic search via `mem-search`, timeline tracking, and observation logging)
 - **Scheduled tasks** — dynamic systemd user timers, created at runtime
 - **Extensible** — skill-based plugin architecture for adding capabilities
 - **Resource efficient** — runs on 4 CPU / 8GB LXC
@@ -76,7 +76,7 @@ The wrapper script manages Claude Code's lifecycle to prevent context pollution.
 | Trigger | Threshold | Configurable |
 |---|---|---|
 | Idle timeout | 30 minutes no Telegram activity | `IDLE_TIMEOUT_MIN` |
-| Memory usage | >1.2GB (approaching ceiling) | `MEMORY_CEILING_MB` |
+| Memory usage | >1.2GB (approaching ceiling), measured via cgroup v2 `memory.current` | `MEMORY_CEILING_MB` |
 | Max uptime | 6 hours (hard cap) | `MAX_UPTIME_HOURS` |
 
 ### Rotation Sequence
@@ -89,9 +89,10 @@ The wrapper script manages Claude Code's lifecycle to prevent context pollution.
 
 ### Edge Cases
 
-- **Active conversation:** Defer rotation until idle (detect via recent Telegram activity or CPU usage)
+- **Active conversation:** Defer rotation until idle. Detection: CLAUDE.md instructs the session to touch a marker file (`~/workspace/assistant/.last-activity`) on each Telegram interaction. The wrapper monitors this file's mtime — if mtime is within `IDLE_TIMEOUT_MIN`, the session is considered active.
 - **Crash:** systemd restarts wrapper, which relaunches claude
 - **Stuck:** Max uptime cap ensures eventual rotation
+- **Message loss during rotation:** Telegram Bot API buffers undelivered messages server-side. Messages sent during the ~5s rotation window are delivered when the new session starts. This is an accepted gap — no messages are permanently lost, but there may be a brief delay.
 
 ### User Experience
 
@@ -108,6 +109,9 @@ IDLE_TIMEOUT_MIN=30
 MEMORY_CEILING_MB=1200
 MAX_UPTIME_HOURS=6
 ROTATE_COOLDOWN_SEC=5
+# Memory is measured via systemd's MemoryCurrent property (cgroup v2),
+# which tracks total memory of the service scope including all child
+# processes (Claude Code, MCP servers, subagents).
 ```
 
 ---
@@ -203,9 +207,16 @@ Layered security replacing `--dangerously-skip-permissions`.
       "Bash(mkdir *)", "Bash(cp *)", "Bash(mv *)",
       "Bash(echo *)", "Bash(date *)", "Bash(diff *)",
       "Bash(sort *)", "Bash(uniq *)", "Bash(sed *)",
-      "Bash(awk *)", "Bash(tee *)", "Bash(chmod *)",
+      "Bash(awk *)", "Bash(tee *)",
+
+      // chmod — scoped to specific uses only (S1 fix)
+      "Bash(chmod 600 *)", "Bash(chmod 644 *)", "Bash(chmod +x */bin/*)",
 
       // Runtime tools
+      // NOTE (S5 accepted risk): python3/node/bun allow arbitrary code
+      // execution which can bypass deny patterns. The real security
+      // boundary is OS-level (no sudo, scoped user). Denying these
+      // would cripple the assistant's core functionality.
       "Bash(curl *)", "Bash(wget *)",
       "Bash(python3 *)", "Bash(node *)", "Bash(bun *)",
       "Bash(npm *)", "Bash(npx *)",
@@ -213,27 +224,39 @@ Layered security replacing `--dangerously-skip-permissions`.
       // Claude subprocesses
       "Bash(claude *)",
 
-      // Timer management
-      "Bash(systemctl --user *)",
+      // Timer management — explicit user-scoped systemd (I1 fix)
+      "Bash(systemctl --user start *)",
+      "Bash(systemctl --user stop *)",
+      "Bash(systemctl --user enable *)",
+      "Bash(systemctl --user disable *)",
+      "Bash(systemctl --user daemon-reload)",
+      "Bash(systemctl --user list-timers *)",
+      "Bash(systemctl --user status *)",
       "Bash(*/manage-timer.sh *)",
 
       // Telegram send
       "Bash(*/send-telegram.sh *)",
 
-      // MCP tools
-      "mcp__*"
+      // MCP tools — enumerate known servers
+      "mcp__claude_ai_Gmail__*",
+      "mcp__claude_ai_Google_Calendar__*",
+      "mcp__plugin_telegram_telegram__*",
+      "mcp__context7__*"
     ],
     "deny": [
       "Bash(sudo *)", "Bash(su *)",
       "Bash(apt *)", "Bash(dpkg *)",
+      // System-level systemctl (without --user prefix)
       "Bash(systemctl start *)", "Bash(systemctl stop *)",
       "Bash(systemctl restart *)", "Bash(systemctl enable *)",
-      "Bash(rm -rf /)", "Bash(dd *)",
+      "Bash(rm -rf /*)", "Bash(rm -rf ~/*)",
+      "Bash(dd *)",
       "Bash(mkfs *)", "Bash(mount *)", "Bash(umount *)",
       "Bash(iptables *)", "Bash(nft *)",
       "Bash(reboot *)", "Bash(shutdown *)",
       "Bash(passwd *)", "Bash(useradd *)",
-      "Bash(userdel *)", "Bash(chown *)"
+      "Bash(userdel *)", "Bash(chown *)",
+      "Bash(chmod 777 *)"
     ]
   }
 }
@@ -275,6 +298,64 @@ If a command falls through both the CLAUDE.md self-check AND the settings.json a
 - Session rotation max uptime cap (6h) recovers hung sessions
 - Healthcheck detects no-activity + high-uptime → alerts via Uptime Kuma
 - Review logs, expand allowlist as needed
+
+---
+
+## Healthcheck & Monitoring
+
+### Healthcheck Script
+
+Enhanced version of the existing `healthcheck.sh`, pushed to Uptime Kuma:
+
+```bash
+#!/bin/bash
+# Checks: service alive, memory usage, stuck detection
+source ~/workspace/assistant/config.env
+
+SERVICE="claude-channels"
+PUSH_URL="${UPTIME_KUMA_URL}?status=up&msg=OK"
+PUSH_URL_DOWN="${UPTIME_KUMA_URL}?status=down&msg=service_dead"
+
+if ! systemctl is-active --quiet "$SERVICE"; then
+    curl -fsS "${PUSH_URL_DOWN}" > /dev/null 2>&1
+    exit 1
+fi
+
+# Report memory usage as ping value
+MEM_BYTES=$(systemctl show "$SERVICE" --property=MemoryCurrent --value)
+MEM_MB=$((MEM_BYTES / 1048576))
+
+# Stuck detection: if last activity marker is older than 2x idle timeout
+# AND uptime > MAX_UPTIME_HOURS, flag as potentially stuck
+LAST_ACTIVITY=$(stat -c %Y ~/workspace/assistant/.last-activity 2>/dev/null || echo 0)
+NOW=$(date +%s)
+IDLE_SEC=$(( NOW - LAST_ACTIVITY ))
+
+if [ "$IDLE_SEC" -gt "$((IDLE_TIMEOUT_MIN * 60 * 2))" ] && [ "$MEM_MB" -gt "$MEMORY_CEILING_MB" ]; then
+    curl -fsS "${PUSH_URL}&msg=possibly_stuck&ping=${MEM_MB}" > /dev/null 2>&1
+else
+    curl -fsS "${PUSH_URL}&ping=${MEM_MB}" > /dev/null 2>&1
+fi
+```
+
+Runs via cron every 60 seconds.
+
+### API Outage Handling
+
+The session wrapper implements exponential backoff when Claude Code exits repeatedly:
+
+```
+Exit 1 → restart after 30s (normal RestartSec)
+Exit 2 → restart after 60s
+Exit 3 → restart after 120s
+Exit 4+ → alert via send-telegram.sh (direct bot API, no Claude needed),
+           restart after 300s
+Exit 6+ → stop retrying, alert "manual intervention needed"
+```
+
+Rapid restart detection: if 3+ restarts occur within 5 minutes, the wrapper sends a Telegram alert and enters extended backoff. This prevents burning API credits on repeated failures.
+
+The wrapper tracks restart count in a file (`~/workspace/assistant/.restart-count`) which resets after a successful session lasting >5 minutes.
 
 ---
 
