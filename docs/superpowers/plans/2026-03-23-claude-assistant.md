@@ -812,7 +812,7 @@ echo $?  # Expected: 0
 - [ ] **Step 6: Commit**
 
 ```bash
-git add assistant/bin/manage-timer.sh assistant/timers/
+git add assistant/bin/manage-timer.sh assistant/lib/run-timer-task.sh assistant/timers/
 git commit -m "feat(assistant): add timer management with systemd user templates"
 ```
 
