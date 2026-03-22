@@ -1,0 +1,26 @@
+[Unit]
+Description=Claude Code Assistant (Telegram)
+After=network-online.target
+Wants=network-online.target
+StartLimitIntervalSec=0
+
+[Service]
+Type=simple
+User=claude-agent
+Group=claude-agent
+WorkingDirectory=/home/claude-agent/workspace
+Environment=HOME=/home/claude-agent
+Environment=PATH=/home/claude-agent/.local/bin:/home/claude-agent/.bun/bin:/usr/local/bin:/usr/bin:/bin
+ExecStart=/bin/bash /home/claude-agent/workspace/assistant/bin/session-wrapper.sh
+Restart=on-failure
+RestartSec=30
+MemoryMax=2G
+MemoryHigh=1536M
+KillMode=control-group
+TimeoutStopSec=60
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=claude-channels
+
+[Install]
+WantedBy=multi-user.target

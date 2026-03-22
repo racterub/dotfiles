@@ -1,0 +1,2 @@
+# Healthcheck for Claude Assistant — push to Uptime Kuma every minute
+* * * * * claude-agent /home/claude-agent/workspace/assistant/lib/healthcheck.sh
