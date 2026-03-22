@@ -1,0 +1,9 @@
+[Unit]
+Description=Timer for Claude Assistant Task: {{NAME}}
+
+[Timer]
+OnCalendar={{SCHEDULE}}
+Persistent=true
+
+[Install]
+WantedBy=timers.target

@@ -1,0 +1,9 @@
+[Unit]
+Description=Claude Assistant Task: {{NAME}}
+
+[Service]
+Type=oneshot
+Environment=HOME={{HOME}}
+Environment=PATH={{HOME}}/.local/bin:{{HOME}}/.bun/bin:/usr/local/bin:/usr/bin:/bin
+WorkingDirectory={{WORKSPACE}}
+ExecStart={{ASSISTANT_DIR}}/lib/run-timer-task.sh "{{PROMPT}}"
