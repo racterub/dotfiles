@@ -331,7 +331,12 @@ LAST_ACTIVITY=$(stat -c %Y ~/workspace/assistant/.last-activity 2>/dev/null || e
 NOW=$(date +%s)
 IDLE_SEC=$(( NOW - LAST_ACTIVITY ))
 
-if [ "$IDLE_SEC" -gt "$((IDLE_TIMEOUT_MIN * 60 * 2))" ] && [ "$MEM_MB" -gt "$MEMORY_CEILING_MB" ]; then
+# Stuck if: idle too long AND (memory high OR uptime exceeds max)
+UPTIME_SEC=$(( NOW - $(stat -c %Y /proc/$(systemctl show "$SERVICE" --property=MainPID --value)/comm 2>/dev/null || echo "$NOW") ))
+UPTIME_HOURS=$(( UPTIME_SEC / 3600 ))
+
+if [ "$IDLE_SEC" -gt "$((IDLE_TIMEOUT_MIN * 60 * 2))" ] && \
+   { [ "$MEM_MB" -gt "$MEMORY_CEILING_MB" ] || [ "$UPTIME_HOURS" -ge "$MAX_UPTIME_HOURS" ]; }; then
     curl -fsS "${PUSH_URL}&msg=possibly_stuck&ping=${MEM_MB}" > /dev/null 2>&1
 else
     curl -fsS "${PUSH_URL}&ping=${MEM_MB}" > /dev/null 2>&1
@@ -345,12 +350,13 @@ Runs via cron every 60 seconds.
 The session wrapper implements exponential backoff when Claude Code exits repeatedly:
 
 ```
-Exit 1 → restart after 30s (normal RestartSec)
-Exit 2 → restart after 60s
-Exit 3 → restart after 120s
-Exit 4+ → alert via send-telegram.sh (direct bot API, no Claude needed),
-           restart after 300s
-Exit 6+ → stop retrying, alert "manual intervention needed"
+Consecutive failure count → action:
+  1 → restart after 30s (normal RestartSec)
+  2 → restart after 60s
+  3 → restart after 120s
+  4-5 → alert via send-telegram.sh (direct bot API, no Claude needed),
+        restart after 300s
+  6+ → stop retrying, alert "manual intervention needed"
 ```
 
 Rapid restart detection: if 3+ restarts occur within 5 minutes, the wrapper sends a Telegram alert and enters extended backoff. This prevents burning API credits on repeated failures.
