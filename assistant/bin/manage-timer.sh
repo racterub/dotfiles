@@ -53,13 +53,17 @@ create_timer() {
 
     mkdir -p "$TIMER_DIR"
 
+    # Escape prompt for sed (handle |, &, /, \ in user input)
+    local escaped_prompt
+    escaped_prompt=$(printf '%s' "$prompt" | sed 's/[|&/\]/\\&/g')
+
     # Render service from template
     sed \
         -e "s|{{NAME}}|${name}|g" \
         -e "s|{{HOME}}|${HOME}|g" \
         -e "s|{{WORKSPACE}}|${WORKSPACE_DIR}|g" \
         -e "s|{{ASSISTANT_DIR}}|${ASSISTANT_DIR}|g" \
-        -e "s|{{PROMPT}}|${prompt}|g" \
+        -e "s|{{PROMPT}}|${escaped_prompt}|g" \
         "${TEMPLATE_DIR}/task.service.tmpl" > "${TIMER_DIR}/${unit_name}.service"
 
     # Render timer from template

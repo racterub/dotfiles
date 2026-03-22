@@ -14,10 +14,6 @@ fi
 
 # Check deny list first
 DENIED=$(jq -r '.permissions.deny[]' "$SETTINGS" 2>/dev/null | while read -r rule; do
-    # Strip "Bash(" prefix and ")" suffix
-    rule_pattern="${rule#Bash(}"
-    rule_pattern="${rule_pattern%)}"
-    # Use bash pattern matching
     if [[ "Bash($PATTERN)" == $rule ]]; then
         echo "denied"
         break

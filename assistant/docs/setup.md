@@ -117,10 +117,3 @@ systemctl daemon-reload
 systemctl start claude-channels
 ```
 
----
-
-Then commit:
-```bash
-git add assistant/docs/setup.md
-git commit -m "docs(assistant): add server setup and migration guide"
-```
