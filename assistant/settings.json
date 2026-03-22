@@ -1,0 +1,47 @@
+{
+  "permissions": {
+    "allow": [
+      "Read", "Write", "Edit", "Glob", "Grep",
+      "Agent", "Skill", "WebFetch", "WebSearch",
+      "Bash(git *)", "Bash(ls *)", "Bash(cat *)",
+      "Bash(head *)", "Bash(tail *)", "Bash(grep *)",
+      "Bash(find *)", "Bash(wc *)", "Bash(jq *)",
+      "Bash(mkdir *)", "Bash(cp *)", "Bash(mv *)",
+      "Bash(echo *)", "Bash(date *)", "Bash(diff *)",
+      "Bash(sort *)", "Bash(uniq *)", "Bash(sed *)",
+      "Bash(awk *)", "Bash(tee *)",
+      "Bash(chmod 600 *)", "Bash(chmod 644 *)", "Bash(chmod +x */bin/*)",
+      "Bash(curl *)", "Bash(wget *)",
+      "Bash(python3 *)", "Bash(node *)", "Bash(bun *)",
+      "Bash(npm *)", "Bash(npx *)",
+      "Bash(claude *)",
+      "Bash(systemctl --user start *)",
+      "Bash(systemctl --user stop *)",
+      "Bash(systemctl --user enable *)",
+      "Bash(systemctl --user disable *)",
+      "Bash(systemctl --user daemon-reload)",
+      "Bash(systemctl --user list-timers *)",
+      "Bash(systemctl --user status *)",
+      "Bash(*/manage-timer.sh *)",
+      "Bash(*/send-telegram.sh *)",
+      "mcp__claude_ai_Gmail__*",
+      "mcp__claude_ai_Google_Calendar__*",
+      "mcp__plugin_telegram_telegram__*",
+      "mcp__context7__*"
+    ],
+    "deny": [
+      "Bash(sudo *)", "Bash(su *)",
+      "Bash(apt *)", "Bash(dpkg *)",
+      "Bash(systemctl start *)", "Bash(systemctl stop *)",
+      "Bash(systemctl restart *)", "Bash(systemctl enable *)",
+      "Bash(rm -rf /*)", "Bash(rm -rf ~/*)",
+      "Bash(dd *)",
+      "Bash(mkfs *)", "Bash(mount *)", "Bash(umount *)",
+      "Bash(iptables *)", "Bash(nft *)",
+      "Bash(reboot *)", "Bash(shutdown *)",
+      "Bash(passwd *)", "Bash(useradd *)",
+      "Bash(userdel *)", "Bash(chown *)",
+      "Bash(chmod 777 *)"
+    ]
+  }
+}
